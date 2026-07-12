@@ -6,6 +6,7 @@ import { useGameLoop } from "./hooks/useGameLoop";
 import { useAttractMode } from "./hooks/useAttractMode";
 import { useKeyboard } from "./hooks/useKeyboard";
 import { getHighScores } from "./game/highscores";
+import { music } from "./game/music";
 import { useState, useEffect, useRef } from "react";
 import "./App.css";
 
@@ -32,6 +33,20 @@ function App() {
   gameStateRef.current = gameState;
 
   useEffect(() => {
+    const initMusic = () => {
+      music.init();
+      document.removeEventListener("keydown", initMusic);
+      document.removeEventListener("click", initMusic);
+    };
+    document.addEventListener("keydown", initMusic);
+    document.addEventListener("click", initMusic);
+    return () => {
+      document.removeEventListener("keydown", initMusic);
+      document.removeEventListener("click", initMusic);
+    };
+  }, []);
+
+  useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Enter" && gameStateRef.current === "idle") {
         e.preventDefault();
@@ -41,6 +56,23 @@ function App() {
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
   }, []);
+
+  useEffect(() => {
+    if (gameState === "idle") {
+      music.playAttract();
+    } else if (gameState === "playing") {
+      music.playGame(level);
+    } else {
+      music.stop();
+    }
+    return () => { music.stop(); };
+  }, [gameState]);
+
+  useEffect(() => {
+    if (gameState === "playing") {
+      music.setTempo(level);
+    }
+  }, [gameState, level]);
 
   const handleSubmitScore = () => {
     setDisplayScores(getHighScores());

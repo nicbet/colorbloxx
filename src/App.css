@@ -27,6 +27,10 @@
 .letter-3 { color: #00e676; }
 .letter-4 { color: #2979ff; }
 .letter-5 { color: #d500f9; }
+.letter-6 { color: #00f0f0; }
+.letter-7 { color: #ff1744; }
+.letter-8 { color: #ff9100; }
+.letter-9 { color: #ffea00; }
 
 .game-layout {
   display: flex;
