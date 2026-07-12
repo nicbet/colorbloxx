@@ -1,12 +1,17 @@
 import { useState, useRef, useEffect } from "react";
+import { saveHighScore, getHighScores, type HighScore } from "../game/highscores";
+import Leaderboard from "./Leaderboard";
 
 interface Props {
   score: number;
-  onSubmit: (initials: string) => void;
+  onPlayAgain: () => void;
 }
 
-export default function GameOver({ score, onSubmit }: Props) {
+export default function GameOver({ score, onPlayAgain }: Props) {
   const [initials, setInitials] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const [scores, setScores] = useState<HighScore[]>([]);
+  const [highlightRank, setHighlightRank] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -19,7 +24,11 @@ export default function GameOver({ score, onSubmit }: Props) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(initials || "AAA");
+    const name = initials || "AAA";
+    const rank = saveHighScore(name, score);
+    setScores(getHighScores());
+    setHighlightRank(rank);
+    setSubmitted(true);
   };
 
   return (
@@ -29,21 +38,30 @@ export default function GameOver({ score, onSubmit }: Props) {
         <p className="gameover-score">
           Score: <strong>{score.toLocaleString()}</strong>
         </p>
-        <form onSubmit={handleSubmit} className="gameover-form">
-          <label className="gameover-label">Enter your initials</label>
-          <input
-            ref={inputRef}
-            className="gameover-input"
-            type="text"
-            value={initials}
-            onChange={handleChange}
-            maxLength={3}
-            placeholder="AAA"
-          />
-          <button type="submit" className="start-button gameover-button">
-            PLAY AGAIN
-          </button>
-        </form>
+        {!submitted ? (
+          <form onSubmit={handleSubmit} className="gameover-form">
+            <label className="gameover-label">Enter your initials</label>
+            <input
+              ref={inputRef}
+              className="gameover-input"
+              type="text"
+              value={initials}
+              onChange={handleChange}
+              maxLength={3}
+              placeholder="AAA"
+            />
+            <button type="submit" className="start-button gameover-button">
+              SUBMIT
+            </button>
+          </form>
+        ) : (
+          <>
+            <Leaderboard scores={scores} highlightRank={highlightRank} />
+            <button className="start-button gameover-button" onClick={onPlayAgain}>
+              PLAY AGAIN
+            </button>
+          </>
+        )}
       </div>
     </div>
   );

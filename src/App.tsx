@@ -1,7 +1,10 @@
 import GameCanvas from "./components/GameCanvas";
 import GameOver from "./components/GameOver";
+import Leaderboard from "./components/Leaderboard";
 import { useGameLoop } from "./hooks/useGameLoop";
 import { useKeyboard } from "./hooks/useKeyboard";
+import { getHighScores } from "./game/highscores";
+import { useState } from "react";
 import "./App.css";
 
 function App() {
@@ -12,11 +15,18 @@ function App() {
     startGame, playAgain,
   } = useGameLoop();
 
+  const [idleScores, setIdleScores] = useState(getHighScores);
+
   useKeyboard(
     gameState === "playing"
       ? { moveLeft, moveRight, hardDrop, rotate, startSoftDrop, stopSoftDrop }
       : null,
   );
+
+  const handlePlayAgain = () => {
+    setIdleScores(getHighScores());
+    playAgain();
+  };
 
   return (
     <div className="game-container">
@@ -32,16 +42,16 @@ function App() {
           <GameCanvas board={board} player={player} />
           {gameState === "idle" && (
             <div className="start-overlay">
-              <button className="start-button" onClick={startGame}>
-                START GAME
-              </button>
+              <div className="start-content">
+                <button className="start-button" onClick={startGame}>
+                  START GAME
+                </button>
+                <Leaderboard scores={idleScores} />
+              </div>
             </div>
           )}
           {gameState === "gameover" && (
-            <GameOver
-              score={score}
-              onSubmit={() => playAgain()}
-            />
+            <GameOver score={score} onPlayAgain={handlePlayAgain} />
           )}
         </div>
         <div className="side-panel">
