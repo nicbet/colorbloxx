@@ -1,6 +1,7 @@
 import GameCanvas from "./components/GameCanvas";
 import GameOver from "./components/GameOver";
 import Leaderboard from "./components/Leaderboard";
+import NextPiece from "./components/NextPiece";
 import { useGameLoop } from "./hooks/useGameLoop";
 import { useKeyboard } from "./hooks/useKeyboard";
 import { getHighScores } from "./game/highscores";
@@ -9,7 +10,7 @@ import "./App.css";
 
 function App() {
   const {
-    board, player, gameState, score, level,
+    board, player, gameState, score, level, lines, nextTetromino,
     moveLeft, moveRight, hardDrop, rotate,
     startSoftDrop, stopSoftDrop,
     startGame, playAgain,
@@ -43,6 +44,10 @@ function App() {
             <span className="stat-label">Level</span>
             <span className="stat-value">{level}</span>
           </div>
+          <div className="stat">
+            <span className="stat-label">Lines</span>
+            <span className="stat-value">{lines}</span>
+          </div>
         </div>
         <div className="board-wrapper">
           <GameCanvas board={board} player={player} />
@@ -64,6 +69,10 @@ function App() {
           <div className="stat">
             <span className="stat-label">Score</span>
             <span className="stat-value">{score.toLocaleString()}</span>
+          </div>
+          <div className="stat">
+            <span className="stat-label">Next</span>
+            <NextPiece tetromino={nextTetromino} />
           </div>
         </div>
       </div>

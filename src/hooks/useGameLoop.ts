@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { createBoard, clearLines, type Board } from "../game/board";
 import { spawnPlayer, getShape, type Player } from "../game/player";
+import { randomTetromino, type Tetromino } from "../game/pieces";
 import { isValidPosition } from "../game/collision";
 import { lockPiece } from "../game/lock";
 
@@ -24,6 +25,9 @@ export function useGameLoop() {
   const [player, setPlayer] = useState<Player | null>(null);
   const [softDropping, setSoftDropping] = useState(false);
   const [score, setScore] = useState(0);
+  const [lines, setLines] = useState(0);
+  const [nextTetromino, setNextTetromino] = useState<Tetromino | null>(null);
+  const nextTetrominoRef = useRef(nextTetromino);
   const playerRef = useRef(player);
   const boardRef = useRef(board);
   const gameStateRef = useRef(gameState);
@@ -34,6 +38,7 @@ export function useGameLoop() {
   boardRef.current = board;
   gameStateRef.current = gameState;
   scoreRef.current = score;
+  nextTetrominoRef.current = nextTetromino;
 
   const level = Math.floor(score / 1000) + 1;
 
@@ -51,9 +56,11 @@ export function useGameLoop() {
     if (linesCleared > 0) {
       const points = SCORE_TABLE[linesCleared] ?? 0;
       setScore((prev) => prev + points);
+      setLines((prev) => prev + linesCleared);
     }
-    const next = spawnPlayer();
+    const next = spawnPlayer(nextTetrominoRef.current ?? undefined);
     const nextShape = getShape(next);
+    setNextTetromino(randomTetromino());
     if (!isValidPosition(cleared, nextShape, next.pos)) {
       setPlayer(null);
       setGameState("gameover");
@@ -178,8 +185,10 @@ export function useGameLoop() {
     clearLockDelay();
     setSoftDropping(false);
     setScore(0);
+    setLines(0);
     setBoard(createBoard());
     setPlayer(spawnPlayer());
+    setNextTetromino(randomTetromino());
     setGameState("playing");
   }, [clearLockDelay]);
 
@@ -187,8 +196,10 @@ export function useGameLoop() {
     clearLockDelay();
     setSoftDropping(false);
     setScore(0);
+    setLines(0);
     setBoard(createBoard());
     setPlayer(null);
+    setNextTetromino(null);
     setGameState("idle");
   }, [clearLockDelay]);
 
@@ -216,7 +227,7 @@ export function useGameLoop() {
   }, [gameState, softDropping, level, isLanded, startLockDelay]);
 
   return {
-    board, player, gameState, score, level,
+    board, player, gameState, score, level, lines, nextTetromino,
     moveLeft, moveRight, hardDrop, rotate,
     startSoftDrop, stopSoftDrop,
     startGame, playAgain,

@@ -7,8 +7,8 @@ export interface Player {
   pos: { x: number; y: number };
 }
 
-export function spawnPlayer(): Player {
-  const tetromino = randomTetromino();
+export function spawnPlayer(tetromino?: Tetromino): Player {
+  tetromino = tetromino ?? randomTetromino();
   const shape = tetromino.rotations[0];
   const pieceWidth = shape[0].length;
   return {
