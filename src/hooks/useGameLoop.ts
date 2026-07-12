@@ -4,9 +4,17 @@ import { spawnPlayer, getShape, type Player } from "../game/player";
 import { isValidPosition } from "../game/collision";
 import { lockPiece } from "../game/lock";
 
-const INITIAL_GRAVITY_MS = 800;
+const BASE_GRAVITY_MS = 800;
+const SPEED_REDUCTION_PER_LEVEL = 75;
+const MIN_GRAVITY_MS = 100;
 const SOFT_DROP_MS = 50;
 const LOCK_DELAY_MS = 500;
+
+const SCORE_TABLE: Record<number, number> = { 1: 50, 2: 100, 3: 200, 4: 500 };
+
+function gravityInterval(level: number): number {
+  return Math.max(MIN_GRAVITY_MS, BASE_GRAVITY_MS - (level - 1) * SPEED_REDUCTION_PER_LEVEL);
+}
 
 export type GameState = "idle" | "playing";
 
@@ -15,14 +23,19 @@ export function useGameLoop() {
   const [board, setBoard] = useState<Board>(createBoard);
   const [player, setPlayer] = useState<Player | null>(null);
   const [softDropping, setSoftDropping] = useState(false);
+  const [score, setScore] = useState(0);
   const playerRef = useRef(player);
   const boardRef = useRef(board);
   const gameStateRef = useRef(gameState);
+  const scoreRef = useRef(score);
   const lockDelayRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   playerRef.current = player;
   boardRef.current = board;
   gameStateRef.current = gameState;
+  scoreRef.current = score;
+
+  const level = Math.floor(score / 1000) + 1;
 
   const clearLockDelay = useCallback(() => {
     if (lockDelayRef.current !== null) {
@@ -31,16 +44,24 @@ export function useGameLoop() {
     }
   }, []);
 
+  const lockAndScore = useCallback((b: Board, p: Player) => {
+    const locked = lockPiece(b, p);
+    const { board: cleared, linesCleared } = clearLines(locked);
+    setBoard(cleared);
+    if (linesCleared > 0) {
+      const points = SCORE_TABLE[linesCleared] ?? 0;
+      setScore((prev) => prev + points);
+    }
+    setPlayer(spawnPlayer());
+  }, []);
+
   const lock = useCallback(() => {
     clearLockDelay();
     const p = playerRef.current;
     if (!p) return;
     const b = boardRef.current;
-    const locked = lockPiece(b, p);
-    const { board: cleared } = clearLines(locked);
-    setBoard(cleared);
-    setPlayer(spawnPlayer());
-  }, [clearLockDelay]);
+    lockAndScore(b, p);
+  }, [clearLockDelay, lockAndScore]);
 
   const startLockDelay = useCallback(() => {
     clearLockDelay();
@@ -97,11 +118,8 @@ export function useGameLoop() {
     }
 
     const dropped = { ...p, pos: { ...p.pos, y: dropY } };
-    const locked = lockPiece(b, dropped);
-    const { board: cleared } = clearLines(locked);
-    setBoard(cleared);
-    setPlayer(spawnPlayer());
-  }, [clearLockDelay]);
+    lockAndScore(b, dropped);
+  }, [clearLockDelay, lockAndScore]);
 
   const KICK_OFFSETS = [
     { x: -1, y: 0 }, { x: 1, y: 0 },
@@ -152,6 +170,7 @@ export function useGameLoop() {
   const startGame = useCallback(() => {
     clearLockDelay();
     setSoftDropping(false);
+    setScore(0);
     setBoard(createBoard());
     setPlayer(spawnPlayer());
     setGameState("playing");
@@ -160,7 +179,7 @@ export function useGameLoop() {
   useEffect(() => {
     if (gameState !== "playing") return;
 
-    const interval = softDropping ? SOFT_DROP_MS : INITIAL_GRAVITY_MS;
+    const interval = softDropping ? SOFT_DROP_MS : gravityInterval(level);
 
     const id = setInterval(() => {
       const p = playerRef.current;
@@ -178,10 +197,10 @@ export function useGameLoop() {
     }, interval);
 
     return () => clearInterval(id);
-  }, [gameState, softDropping, isLanded, startLockDelay]);
+  }, [gameState, softDropping, level, isLanded, startLockDelay]);
 
   return {
-    board, player, gameState,
+    board, player, gameState, score, level,
     moveLeft, moveRight, hardDrop, rotate,
     startSoftDrop, stopSoftDrop,
     startGame,

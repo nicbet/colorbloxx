@@ -5,7 +5,7 @@ import "./App.css";
 
 function App() {
   const {
-    board, player, gameState,
+    board, player, gameState, score, level,
     moveLeft, moveRight, hardDrop, rotate,
     startSoftDrop, stopSoftDrop,
     startGame,
@@ -26,15 +26,27 @@ function App() {
           </span>
         ))}
       </h1>
-      <div className="board-wrapper">
-        <GameCanvas board={board} player={player} />
-        {gameState === "idle" && (
-          <div className="start-overlay">
-            <button className="start-button" onClick={startGame}>
-              START GAME
-            </button>
+      <div className="game-layout">
+        <div className="board-wrapper">
+          <GameCanvas board={board} player={player} />
+          {gameState === "idle" && (
+            <div className="start-overlay">
+              <button className="start-button" onClick={startGame}>
+                START GAME
+              </button>
+            </div>
+          )}
+        </div>
+        <div className="side-panel">
+          <div className="stat">
+            <span className="stat-label">Score</span>
+            <span className="stat-value">{score.toLocaleString()}</span>
           </div>
-        )}
+          <div className="stat">
+            <span className="stat-label">Level</span>
+            <span className="stat-value">{level}</span>
+          </div>
+        </div>
       </div>
       <div className="instructions">
         <div className="controls">

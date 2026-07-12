@@ -28,8 +28,45 @@
 .letter-4 { color: #2979ff; }
 .letter-5 { color: #d500f9; }
 
+.game-layout {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
 .board-wrapper {
   position: relative;
+}
+
+.side-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 120px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 16px;
+  border: 1px solid #333;
+  border-radius: 6px;
+  background: rgba(15, 15, 35, 0.8);
+}
+
+.stat-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #666;
+}
+
+.stat-value {
+  font-family: "Impact", "Arial Black", sans-serif;
+  font-size: 28px;
+  color: #00e676;
+  text-shadow: 0 0 10px rgba(0, 230, 118, 0.4);
 }
 
 .start-overlay {
