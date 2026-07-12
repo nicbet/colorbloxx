@@ -3,9 +3,10 @@ import GameOver from "./components/GameOver";
 import Leaderboard from "./components/Leaderboard";
 import NextPiece from "./components/NextPiece";
 import { useGameLoop } from "./hooks/useGameLoop";
+import { useAttractMode } from "./hooks/useAttractMode";
 import { useKeyboard } from "./hooks/useKeyboard";
 import { getHighScores } from "./game/highscores";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import "./App.css";
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
     startGame, playAgain,
   } = useGameLoop();
 
+  const attract = useAttractMode(gameState === "idle");
   const [displayScores, setDisplayScores] = useState(getHighScores);
 
   useKeyboard(
@@ -23,6 +25,22 @@ function App() {
       ? { moveLeft, moveRight, hardDrop, rotate, startSoftDrop, stopSoftDrop }
       : null,
   );
+
+  const startGameRef = useRef(startGame);
+  startGameRef.current = startGame;
+  const gameStateRef = useRef(gameState);
+  gameStateRef.current = gameState;
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Enter" && gameStateRef.current === "idle") {
+        e.preventDefault();
+        startGameRef.current();
+      }
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, []);
 
   const handlePlayAgain = () => {
     setDisplayScores(getHighScores());
@@ -50,15 +68,14 @@ function App() {
           </div>
         </div>
         <div className="board-wrapper">
-          <GameCanvas board={board} player={player} />
+          <GameCanvas
+            board={gameState === "idle" ? attract.board : board}
+            player={gameState === "idle" ? attract.player : player}
+          />
           {gameState === "idle" && (
             <div className="start-overlay">
-              <div className="start-content">
-                <Leaderboard scores={displayScores} />
-                <button className="start-button" onClick={startGame}>
-                  START
-                </button>
-              </div>
+              <Leaderboard scores={displayScores} />
+              <p className="press-enter">Press Enter to Play</p>
             </div>
           )}
           {gameState === "gameover" && (
@@ -82,13 +99,10 @@ function App() {
           <span className="sep">|</span>
           <span className="key">↑</span> Rotate
           <span className="sep">|</span>
-          <span className="key">↓</span> Soft Drop
+          <span className="key">↓</span> Drop
           <span className="sep">|</span>
-          <span className="key">Space</span> Hard Drop
+          <span className="key">Space</span> Place
         </div>
-        <p className="hint" style={{ visibility: gameState === "idle" ? "visible" : "hidden" }}>
-          Press START to play
-        </p>
       </div>
     </div>
   );
