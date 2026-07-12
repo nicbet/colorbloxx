@@ -12,7 +12,6 @@ export default function Leaderboard({ scores, highlightRank }: Props) {
     <table className="leaderboard">
       <thead>
         <tr>
-          <th>#</th>
           <th>Name</th>
           <th>Score</th>
           <th>Date</th>
@@ -21,7 +20,6 @@ export default function Leaderboard({ scores, highlightRank }: Props) {
       <tbody>
         {scores.map((entry, i) => (
           <tr key={i} className={i === highlightRank ? "highlight" : ""}>
-            <td>{i + 1}</td>
             <td>{entry.initials}</td>
             <td>{entry.score.toLocaleString()}</td>
             <td>{entry.date}</td>

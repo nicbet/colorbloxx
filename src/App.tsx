@@ -15,7 +15,7 @@ function App() {
     startGame, playAgain,
   } = useGameLoop();
 
-  const [idleScores, setIdleScores] = useState(getHighScores);
+  const [displayScores, setDisplayScores] = useState(getHighScores);
 
   useKeyboard(
     gameState === "playing"
@@ -24,7 +24,7 @@ function App() {
   );
 
   const handlePlayAgain = () => {
-    setIdleScores(getHighScores());
+    setDisplayScores(getHighScores());
     playAgain();
   };
 
@@ -38,15 +38,21 @@ function App() {
         ))}
       </h1>
       <div className="game-layout">
+        <div className="aside aside-left">
+          <div className="stat">
+            <span className="stat-label">Level</span>
+            <span className="stat-value">{level}</span>
+          </div>
+        </div>
         <div className="board-wrapper">
           <GameCanvas board={board} player={player} />
           {gameState === "idle" && (
             <div className="start-overlay">
               <div className="start-content">
+                <Leaderboard scores={displayScores} />
                 <button className="start-button" onClick={startGame}>
-                  START GAME
+                  START
                 </button>
-                <Leaderboard scores={idleScores} />
               </div>
             </div>
           )}
@@ -54,14 +60,10 @@ function App() {
             <GameOver score={score} onPlayAgain={handlePlayAgain} />
           )}
         </div>
-        <div className="side-panel">
+        <div className="aside aside-right">
           <div className="stat">
             <span className="stat-label">Score</span>
             <span className="stat-value">{score.toLocaleString()}</span>
-          </div>
-          <div className="stat">
-            <span className="stat-label">Level</span>
-            <span className="stat-value">{level}</span>
           </div>
         </div>
       </div>
@@ -75,9 +77,9 @@ function App() {
           <span className="sep">|</span>
           <span className="key">Space</span> Hard Drop
         </div>
-        {gameState === "idle" && (
-          <p className="hint">Press START to play</p>
-        )}
+        <p className="hint" style={{ visibility: gameState === "idle" ? "visible" : "hidden" }}>
+          Press START to play
+        </p>
       </div>
     </div>
   );
