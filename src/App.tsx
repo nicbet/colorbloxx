@@ -1,12 +1,12 @@
-import { useState } from "react";
 import GameCanvas from "./components/GameCanvas";
-import { createBoard } from "./game/board";
-import { spawnPlayer } from "./game/player";
+import { useGameLoop } from "./hooks/useGameLoop";
+import { useKeyboard } from "./hooks/useKeyboard";
 import "./App.css";
 
 function App() {
-  const [board] = useState(createBoard);
-  const [player] = useState(spawnPlayer);
+  const { board, player, moveLeft, moveRight, hardDrop } = useGameLoop();
+
+  useKeyboard({ moveLeft, moveRight, hardDrop });
 
   return (
     <div className="game-container">
