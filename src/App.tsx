@@ -2,6 +2,7 @@ import GameCanvas from "./components/GameCanvas";
 import GameOver from "./components/GameOver";
 import Leaderboard from "./components/Leaderboard";
 import NextPiece from "./components/NextPiece";
+import Fireworks from "./components/Fireworks";
 import { useGameLoop } from "./hooks/useGameLoop";
 import { useAttractMode } from "./hooks/useAttractMode";
 import { useKeyboard } from "./hooks/useKeyboard";
@@ -12,7 +13,7 @@ import "./App.css";
 
 function App() {
   const {
-    board, player, gameState, score, level, lines, nextTetromino, effectsRef, shakeRef,
+    board, player, gameState, score, level, lines, nextTetromino, effectsRef, shakeRef, fireworksRef,
     moveLeft, moveRight, hardDrop, rotate,
     startSoftDrop, stopSoftDrop,
     startGame, returnToIdle,
@@ -138,6 +139,7 @@ function App() {
           <span className="key">Space</span> Place
         </div>
       </div>
+      <Fireworks ref={fireworksRef} />
     </div>
   );
 }
