@@ -1,4 +1,5 @@
 import GameCanvas from "./components/GameCanvas";
+import GameOver from "./components/GameOver";
 import { useGameLoop } from "./hooks/useGameLoop";
 import { useKeyboard } from "./hooks/useKeyboard";
 import "./App.css";
@@ -8,7 +9,7 @@ function App() {
     board, player, gameState, score, level,
     moveLeft, moveRight, hardDrop, rotate,
     startSoftDrop, stopSoftDrop,
-    startGame,
+    startGame, playAgain,
   } = useGameLoop();
 
   useKeyboard(
@@ -35,6 +36,12 @@ function App() {
                 START GAME
               </button>
             </div>
+          )}
+          {gameState === "gameover" && (
+            <GameOver
+              score={score}
+              onSubmit={() => playAgain()}
+            />
           )}
         </div>
         <div className="side-panel">

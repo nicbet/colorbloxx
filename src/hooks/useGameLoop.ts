@@ -16,7 +16,7 @@ function gravityInterval(level: number): number {
   return Math.max(MIN_GRAVITY_MS, BASE_GRAVITY_MS - (level - 1) * SPEED_REDUCTION_PER_LEVEL);
 }
 
-export type GameState = "idle" | "playing";
+export type GameState = "idle" | "playing" | "gameover";
 
 export function useGameLoop() {
   const [gameState, setGameState] = useState<GameState>("idle");
@@ -52,7 +52,14 @@ export function useGameLoop() {
       const points = SCORE_TABLE[linesCleared] ?? 0;
       setScore((prev) => prev + points);
     }
-    setPlayer(spawnPlayer());
+    const next = spawnPlayer();
+    const nextShape = getShape(next);
+    if (!isValidPosition(cleared, nextShape, next.pos)) {
+      setPlayer(null);
+      setGameState("gameover");
+    } else {
+      setPlayer(next);
+    }
   }, []);
 
   const lock = useCallback(() => {
@@ -176,6 +183,15 @@ export function useGameLoop() {
     setGameState("playing");
   }, [clearLockDelay]);
 
+  const playAgain = useCallback(() => {
+    clearLockDelay();
+    setSoftDropping(false);
+    setScore(0);
+    setBoard(createBoard());
+    setPlayer(null);
+    setGameState("idle");
+  }, [clearLockDelay]);
+
   useEffect(() => {
     if (gameState !== "playing") return;
 
@@ -203,6 +219,6 @@ export function useGameLoop() {
     board, player, gameState, score, level,
     moveLeft, moveRight, hardDrop, rotate,
     startSoftDrop, stopSoftDrop,
-    startGame,
+    startGame, playAgain,
   };
 }

@@ -152,3 +152,87 @@
   0%, 100% { opacity: 0.4; }
   50% { opacity: 1; }
 }
+
+.gameover-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.75);
+}
+
+.gameover-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 32px 24px;
+}
+
+.gameover-title {
+  font-family: "Impact", "Arial Black", sans-serif;
+  font-size: 42px;
+  letter-spacing: 6px;
+  color: #ff1744;
+  text-shadow:
+    0 0 10px #ff1744,
+    0 0 30px #ff1744;
+  margin: 0;
+}
+
+.gameover-score {
+  font-size: 18px;
+  color: #ccc;
+  margin: 0;
+}
+
+.gameover-score strong {
+  color: #00e676;
+  text-shadow: 0 0 8px rgba(0, 230, 118, 0.4);
+}
+
+.gameover-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.gameover-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #888;
+}
+
+.gameover-input {
+  width: 120px;
+  font-family: "Impact", "Arial Black", sans-serif;
+  font-size: 32px;
+  text-align: center;
+  letter-spacing: 8px;
+  padding: 8px;
+  border: 2px solid #555;
+  border-radius: 6px;
+  background: rgba(15, 15, 35, 0.9);
+  color: #ffea00;
+  text-shadow: 0 0 8px rgba(255, 234, 0, 0.4);
+  outline: none;
+}
+
+.gameover-input:focus {
+  border-color: #ffea00;
+  box-shadow: 0 0 10px rgba(255, 234, 0, 0.3);
+}
+
+.gameover-input::placeholder {
+  color: #444;
+  text-shadow: none;
+}
+
+.gameover-button {
+  margin-top: 8px;
+  font-size: 22px;
+  padding: 10px 32px;
+}
