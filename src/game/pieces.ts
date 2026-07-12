@@ -100,7 +100,85 @@ const T: Tetromino = {
   ],
 };
 
-export const TETROMINOES: Tetromino[] = [O, I, Z, T];
+const L: Tetromino = {
+  color: "#f0a000",
+  rotations: [
+    [
+      [false, true, false],
+      [false, true, false],
+      [false, true, true],
+    ],
+    [
+      [false, false, false],
+      [true, true, true],
+      [true, false, false],
+    ],
+    [
+      [true, true, false],
+      [false, true, false],
+      [false, true, false],
+    ],
+    [
+      [false, false, true],
+      [true, true, true],
+      [false, false, false],
+    ],
+  ],
+};
+
+const J: Tetromino = {
+  color: "#0000f0",
+  rotations: [
+    [
+      [false, true, false],
+      [false, true, false],
+      [true, true, false],
+    ],
+    [
+      [true, false, false],
+      [true, true, true],
+      [false, false, false],
+    ],
+    [
+      [false, true, true],
+      [false, true, false],
+      [false, true, false],
+    ],
+    [
+      [false, false, false],
+      [true, true, true],
+      [false, false, true],
+    ],
+  ],
+};
+
+const S: Tetromino = {
+  color: "#00f000",
+  rotations: [
+    [
+      [false, true, true],
+      [true, true, false],
+      [false, false, false],
+    ],
+    [
+      [false, true, false],
+      [false, true, true],
+      [false, false, true],
+    ],
+    [
+      [false, false, false],
+      [false, true, true],
+      [true, true, false],
+    ],
+    [
+      [true, false, false],
+      [true, true, false],
+      [false, true, false],
+    ],
+  ],
+};
+
+export const TETROMINOES: Tetromino[] = [O, I, Z, S, T, L, J];
 
 export function randomTetromino(): Tetromino {
   return TETROMINOES[Math.floor(Math.random() * TETROMINOES.length)];
