@@ -4,9 +4,12 @@ import { useKeyboard } from "./hooks/useKeyboard";
 import "./App.css";
 
 function App() {
-  const { board, player, moveLeft, moveRight, hardDrop } = useGameLoop();
+  const { board, player, gameState, moveLeft, moveRight, hardDrop, startGame } =
+    useGameLoop();
 
-  useKeyboard({ moveLeft, moveRight, hardDrop });
+  useKeyboard(
+    gameState === "playing" ? { moveLeft, moveRight, hardDrop } : null,
+  );
 
   return (
     <div className="game-container">
@@ -17,7 +20,16 @@ function App() {
           </span>
         ))}
       </h1>
-      <GameCanvas board={board} player={player} />
+      <div className="board-wrapper">
+        <GameCanvas board={board} player={player} />
+        {gameState === "idle" && (
+          <div className="start-overlay">
+            <button className="start-button" onClick={startGame}>
+              START GAME
+            </button>
+          </div>
+        )}
+      </div>
       <div className="instructions">
         <div className="controls">
           <span className="key">←</span><span className="key">→</span> Move
@@ -26,7 +38,9 @@ function App() {
           <span className="sep">|</span>
           <span className="key">↓</span> Drop
         </div>
-        <p className="hint">Press START to play</p>
+        {gameState === "idle" && (
+          <p className="hint">Press START to play</p>
+        )}
       </div>
     </div>
   );

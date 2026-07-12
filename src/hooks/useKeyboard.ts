@@ -6,21 +6,25 @@ interface Actions {
   hardDrop: () => void;
 }
 
-export function useKeyboard(actions: Actions) {
+export function useKeyboard(actions: Actions | null) {
   useEffect(() => {
+    if (!actions) return;
+
+    const { moveLeft, moveRight, hardDrop } = actions;
+
     const handler = (e: KeyboardEvent) => {
       switch (e.key) {
         case "ArrowLeft":
           e.preventDefault();
-          actions.moveLeft();
+          moveLeft();
           break;
         case "ArrowRight":
           e.preventDefault();
-          actions.moveRight();
+          moveRight();
           break;
         case "ArrowDown":
           e.preventDefault();
-          actions.hardDrop();
+          hardDrop();
           break;
       }
     };
