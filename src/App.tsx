@@ -6,14 +6,14 @@ import "./App.css";
 function App() {
   const {
     board, player, gameState,
-    moveLeft, moveRight, hardDrop,
+    moveLeft, moveRight, hardDrop, rotate,
     startSoftDrop, stopSoftDrop,
     startGame,
   } = useGameLoop();
 
   useKeyboard(
     gameState === "playing"
-      ? { moveLeft, moveRight, hardDrop, startSoftDrop, stopSoftDrop }
+      ? { moveLeft, moveRight, hardDrop, rotate, startSoftDrop, stopSoftDrop }
       : null,
   );
 

@@ -101,6 +101,43 @@ export function useGameLoop() {
     setPlayer(spawnPlayer());
   }, [clearLockDelay]);
 
+  const KICK_OFFSETS = [
+    { x: -1, y: 0 }, { x: 1, y: 0 },
+    { x: -2, y: 0 }, { x: 2, y: 0 },
+  ];
+
+  const rotate = useCallback(() => {
+    if (gameStateRef.current !== "playing") return;
+    const p = playerRef.current;
+    if (!p) return;
+    const b = boardRef.current;
+    const nextIndex = (p.rotationIndex + 1) % p.tetromino.rotations.length;
+    const nextShape = p.tetromino.rotations[nextIndex];
+
+    const tryPosition = (pos: { x: number; y: number }): boolean => {
+      if (isValidPosition(b, nextShape, pos)) {
+        const rotated = { ...p, rotationIndex: nextIndex, pos };
+        setPlayer(rotated);
+        playerRef.current = rotated;
+
+        if (lockDelayRef.current !== null) {
+          if (isLanded(rotated, b)) {
+            startLockDelay();
+          } else {
+            clearLockDelay();
+          }
+        }
+        return true;
+      }
+      return false;
+    };
+
+    if (tryPosition(p.pos)) return;
+    for (const offset of KICK_OFFSETS) {
+      if (tryPosition({ x: p.pos.x + offset.x, y: p.pos.y + offset.y })) return;
+    }
+  }, [isLanded, startLockDelay, clearLockDelay]);
+
   const startSoftDrop = useCallback(() => {
     if (gameStateRef.current !== "playing") return;
     setSoftDropping(true);
@@ -143,7 +180,7 @@ export function useGameLoop() {
 
   return {
     board, player, gameState,
-    moveLeft, moveRight, hardDrop,
+    moveLeft, moveRight, hardDrop, rotate,
     startSoftDrop, stopSoftDrop,
     startGame,
   };
