@@ -14,7 +14,7 @@ function App() {
     board, player, gameState, score, level, lines, nextTetromino,
     moveLeft, moveRight, hardDrop, rotate,
     startSoftDrop, stopSoftDrop,
-    startGame, playAgain,
+    startGame, returnToIdle,
   } = useGameLoop();
 
   const attract = useAttractMode(gameState === "idle");
@@ -42,9 +42,9 @@ function App() {
     return () => document.removeEventListener("keydown", handler);
   }, []);
 
-  const handlePlayAgain = () => {
+  const handleSubmitScore = () => {
     setDisplayScores(getHighScores());
-    playAgain();
+    returnToIdle();
   };
 
   return (
@@ -79,7 +79,7 @@ function App() {
             </div>
           )}
           {gameState === "gameover" && (
-            <GameOver score={score} onPlayAgain={handlePlayAgain} />
+            <GameOver score={score} onSubmit={handleSubmitScore} />
           )}
         </div>
         <div className="aside aside-right">

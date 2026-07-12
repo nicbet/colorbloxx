@@ -204,9 +204,16 @@ export function useGameLoop() {
     setGameState("playing");
   }, [clearLockDelay]);
 
-  const playAgain = useCallback(() => {
-    startGame();
-  }, [startGame]);
+  const returnToIdle = useCallback(() => {
+    clearLockDelay();
+    setSoftDropping(false);
+    setScore(0);
+    setLines(0);
+    setBoard(createBoard());
+    setPlayer(null);
+    setNextTetromino(null);
+    setGameState("idle");
+  }, [clearLockDelay]);
 
   useEffect(() => {
     if (gameState !== "playing") return;
@@ -235,6 +242,6 @@ export function useGameLoop() {
     board, player, gameState, score, level, lines, nextTetromino,
     moveLeft, moveRight, hardDrop, rotate,
     startSoftDrop, stopSoftDrop,
-    startGame, playAgain,
+    startGame, returnToIdle,
   };
 }
