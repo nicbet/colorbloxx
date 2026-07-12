@@ -4,6 +4,7 @@ import { spawnPlayer, getShape, type Player } from "../game/player";
 import { randomTetromino, type Tetromino } from "../game/pieces";
 import { isValidPosition } from "../game/collision";
 import { lockPiece } from "../game/lock";
+import { sfxMove, sfxRotate, sfxHardDrop, sfxLock, sfxLineClear, sfxGameOver } from "../game/audio";
 
 const BASE_GRAVITY_MS = 800;
 const SPEED_REDUCTION_PER_LEVEL = 75;
@@ -49,7 +50,7 @@ export function useGameLoop() {
     }
   }, []);
 
-  const lockAndScore = useCallback((b: Board, p: Player) => {
+  const lockAndScore = useCallback((b: Board, p: Player, isHardDrop = false) => {
     const locked = lockPiece(b, p);
     const { board: cleared, linesCleared } = clearLines(locked);
     setBoard(cleared);
@@ -57,6 +58,9 @@ export function useGameLoop() {
       const points = SCORE_TABLE[linesCleared] ?? 0;
       setScore((prev) => prev + points);
       setLines((prev) => prev + linesCleared);
+      sfxLineClear(linesCleared);
+    } else if (!isHardDrop) {
+      sfxLock();
     }
     const next = spawnPlayer(nextTetrominoRef.current ?? undefined);
     const nextShape = getShape(next);
@@ -64,6 +68,7 @@ export function useGameLoop() {
     if (!isValidPosition(cleared, nextShape, next.pos)) {
       setPlayer(null);
       setGameState("gameover");
+      sfxGameOver();
     } else {
       setPlayer(next);
     }
@@ -102,6 +107,7 @@ export function useGameLoop() {
       const movedPlayer = { ...p, pos: newPos };
       setPlayer(movedPlayer);
       playerRef.current = movedPlayer;
+      sfxMove();
 
       if (lockDelayRef.current !== null) {
         if (isLanded(movedPlayer, b)) {
@@ -137,7 +143,8 @@ export function useGameLoop() {
     }
 
     const dropped = { ...p, pos: { ...p.pos, y: dropY } };
-    lockAndScore(b, dropped);
+    sfxHardDrop();
+    lockAndScore(b, dropped, true);
   }, [clearLockDelay, lockAndScore]);
 
   const KICK_OFFSETS = [
@@ -171,9 +178,9 @@ export function useGameLoop() {
       return false;
     };
 
-    if (tryPosition(p.pos)) return;
+    if (tryPosition(p.pos)) { sfxRotate(); return; }
     for (const offset of KICK_OFFSETS) {
-      if (tryPosition({ x: p.pos.x + offset.x, y: p.pos.y + offset.y })) return;
+      if (tryPosition({ x: p.pos.x + offset.x, y: p.pos.y + offset.y })) { sfxRotate(); return; }
     }
   }, [isLanded, startLockDelay, clearLockDelay]);
 
