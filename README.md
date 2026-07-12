@@ -1,5 +1,7 @@
 # COLORBLOXX
 
+![COLORBLOXX](docs/screenshot.png)
+
 ## We started with this:
 
 > As a test project I'd like to implement a browser game "COLORBLOXX". Four random shapes (square (2x2), bar (4x1), z (2x1 above 2x1), T (3x1 with a 1x foot). Game starts when user presses a start button, left right arrow moves, up arrow rotates, space mirrors, down arrow drops. Points based on 1,2,3,4 lines erased (50, 100, 200, 500 points). Speed increase every 1000 points. When reaches top gameover, prompt for initials, show highscores list, option to play again.
