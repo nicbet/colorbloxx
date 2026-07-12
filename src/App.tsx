@@ -11,7 +11,7 @@ import "./App.css";
 
 function App() {
   const {
-    board, player, gameState, score, level, lines, nextTetromino,
+    board, player, gameState, score, level, lines, nextTetromino, effectsRef,
     moveLeft, moveRight, hardDrop, rotate,
     startSoftDrop, stopSoftDrop,
     startGame, returnToIdle,
@@ -71,6 +71,7 @@ function App() {
           <GameCanvas
             board={gameState === "idle" ? attract.board : board}
             player={gameState === "idle" ? attract.player : player}
+            effectsRef={gameState === "playing" ? effectsRef : undefined}
           />
           {gameState === "idle" && (
             <div className="start-overlay">

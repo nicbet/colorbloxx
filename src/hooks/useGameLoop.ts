@@ -5,6 +5,8 @@ import { randomTetromino, type Tetromino } from "../game/pieces";
 import { isValidPosition } from "../game/collision";
 import { lockPiece } from "../game/lock";
 import { sfxMove, sfxRotate, sfxHardDrop, sfxLock, sfxLineClear, sfxGameOver } from "../game/audio";
+import { createLineClearEffect, type Effect } from "../game/effects";
+import { COLS } from "../game/constants";
 
 const BASE_GRAVITY_MS = 800;
 const SPEED_REDUCTION_PER_LEVEL = 75;
@@ -34,6 +36,7 @@ export function useGameLoop() {
   const gameStateRef = useRef(gameState);
   const scoreRef = useRef(score);
   const lockDelayRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const effectsRef = useRef<Effect[]>([]);
 
   playerRef.current = player;
   boardRef.current = board;
@@ -52,13 +55,19 @@ export function useGameLoop() {
 
   const lockAndScore = useCallback((b: Board, p: Player, isHardDrop = false) => {
     const locked = lockPiece(b, p);
-    const { board: cleared, linesCleared } = clearLines(locked);
+    const { board: cleared, linesCleared, clearedRows } = clearLines(locked);
     setBoard(cleared);
     if (linesCleared > 0) {
       const points = SCORE_TABLE[linesCleared] ?? 0;
       setScore((prev) => prev + points);
       setLines((prev) => prev + linesCleared);
       sfxLineClear(linesCleared);
+      const rowColors = clearedRows.map((r) =>
+        locked[r].map((cell) => (cell ? String(cell) : "#fff")).slice(0, COLS),
+      );
+      effectsRef.current.push(
+        createLineClearEffect(clearedRows, linesCleared, performance.now(), rowColors),
+      );
     } else if (!isHardDrop) {
       sfxLock();
     }
@@ -239,7 +248,7 @@ export function useGameLoop() {
   }, [gameState, softDropping, level, isLanded, startLockDelay]);
 
   return {
-    board, player, gameState, score, level, lines, nextTetromino,
+    board, player, gameState, score, level, lines, nextTetromino, effectsRef,
     moveLeft, moveRight, hardDrop, rotate,
     startSoftDrop, stopSoftDrop,
     startGame, returnToIdle,

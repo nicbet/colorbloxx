@@ -1,12 +1,14 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, type MutableRefObject } from "react";
 import { BOARD_WIDTH, BOARD_HEIGHT, COLS, ROWS, CELL_SIZE } from "../game/constants";
 import type { Board } from "../game/board";
 import { type Player, getShape } from "../game/player";
 import { isValidPosition } from "../game/collision";
+import { drawEffect, type Effect } from "../game/effects";
 
 interface Props {
   board: Board;
   player: Player | null;
+  effectsRef?: MutableRefObject<Effect[]>;
 }
 
 function drawCell(ctx: CanvasRenderingContext2D, x: number, y: number, color: string) {
@@ -105,7 +107,7 @@ const showGhost = (() => {
   catch { return false; }
 })();
 
-export default function GameCanvas({ board, player }: Props) {
+export default function GameCanvas({ board, player, effectsRef }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const boardRef = useRef(board);
   const playerRef = useRef(player);
@@ -127,12 +129,18 @@ export default function GameCanvas({ board, player }: Props) {
         if (showGhost) drawGhost(ctx, boardRef.current, playerRef.current);
         drawPlayer(ctx, playerRef.current);
       }
+
+      if (effectsRef) {
+        const now = performance.now();
+        effectsRef.current = effectsRef.current.filter((e) => drawEffect(ctx, e, now));
+      }
+
       rafId = requestAnimationFrame(render);
     };
 
     rafId = requestAnimationFrame(render);
     return () => cancelAnimationFrame(rafId);
-  }, []);
+  }, [effectsRef]);
 
   return (
     <canvas
