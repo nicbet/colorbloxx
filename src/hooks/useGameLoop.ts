@@ -118,10 +118,15 @@ export function useGameLoop() {
   const moveLeft = useCallback(() => tryMove(-1, 0), [tryMove]);
   const moveRight = useCallback(() => tryMove(1, 0), [tryMove]);
 
+  const hardDropCooldownRef = useRef(false);
+
   const hardDrop = useCallback(() => {
     if (gameStateRef.current !== "playing") return;
+    if (hardDropCooldownRef.current) return;
     const p = playerRef.current;
     if (!p) return;
+    hardDropCooldownRef.current = true;
+    setTimeout(() => { hardDropCooldownRef.current = false; }, 150);
     clearLockDelay();
     const b = boardRef.current;
     const shape = getShape(p);

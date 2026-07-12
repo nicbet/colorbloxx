@@ -76,6 +76,11 @@ function drawPlayer(ctx: CanvasRenderingContext2D, player: Player) {
 
 export default function GameCanvas({ board, player }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const boardRef = useRef(board);
+  const playerRef = useRef(player);
+
+  boardRef.current = board;
+  playerRef.current = player;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -83,11 +88,19 @@ export default function GameCanvas({ board, player }: Props) {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    drawBoard(ctx, board);
-    if (player) {
-      drawPlayer(ctx, player);
-    }
-  }, [board, player]);
+    let rafId: number;
+
+    const render = () => {
+      drawBoard(ctx, boardRef.current);
+      if (playerRef.current) {
+        drawPlayer(ctx, playerRef.current);
+      }
+      rafId = requestAnimationFrame(render);
+    };
+
+    rafId = requestAnimationFrame(render);
+    return () => cancelAnimationFrame(rafId);
+  }, []);
 
   return (
     <canvas
