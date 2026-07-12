@@ -193,15 +193,8 @@ export function useGameLoop() {
   }, [clearLockDelay]);
 
   const playAgain = useCallback(() => {
-    clearLockDelay();
-    setSoftDropping(false);
-    setScore(0);
-    setLines(0);
-    setBoard(createBoard());
-    setPlayer(null);
-    setNextTetromino(null);
-    setGameState("idle");
-  }, [clearLockDelay]);
+    startGame();
+  }, [startGame]);
 
   useEffect(() => {
     if (gameState !== "playing") return;
