@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import { createBoard, type Board } from "../game/board";
+import { createBoard, clearLines, type Board } from "../game/board";
 import { spawnPlayer, getShape, type Player } from "../game/player";
 import { isValidPosition } from "../game/collision";
 import { lockPiece } from "../game/lock";
@@ -36,8 +36,9 @@ export function useGameLoop() {
     const p = playerRef.current;
     if (!p) return;
     const b = boardRef.current;
-    const newBoard = lockPiece(b, p);
-    setBoard(newBoard);
+    const locked = lockPiece(b, p);
+    const { board: cleared } = clearLines(locked);
+    setBoard(cleared);
     setPlayer(spawnPlayer());
   }, [clearLockDelay]);
 
@@ -96,8 +97,9 @@ export function useGameLoop() {
     }
 
     const dropped = { ...p, pos: { ...p.pos, y: dropY } };
-    const newBoard = lockPiece(b, dropped);
-    setBoard(newBoard);
+    const locked = lockPiece(b, dropped);
+    const { board: cleared } = clearLines(locked);
+    setBoard(cleared);
     setPlayer(spawnPlayer());
   }, [clearLockDelay]);
 
