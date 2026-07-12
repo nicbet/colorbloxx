@@ -4,15 +4,17 @@ interface Actions {
   moveLeft: () => void;
   moveRight: () => void;
   hardDrop: () => void;
+  startSoftDrop: () => void;
+  stopSoftDrop: () => void;
 }
 
 export function useKeyboard(actions: Actions | null) {
   useEffect(() => {
     if (!actions) return;
 
-    const { moveLeft, moveRight, hardDrop } = actions;
+    const { moveLeft, moveRight, hardDrop, startSoftDrop, stopSoftDrop } = actions;
 
-    const handler = (e: KeyboardEvent) => {
+    const onKeyDown = (e: KeyboardEvent) => {
       switch (e.key) {
         case "ArrowLeft":
           e.preventDefault();
@@ -24,12 +26,26 @@ export function useKeyboard(actions: Actions | null) {
           break;
         case "ArrowDown":
           e.preventDefault();
+          if (!e.repeat) startSoftDrop();
+          break;
+        case " ":
+          e.preventDefault();
           hardDrop();
           break;
       }
     };
 
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (e.key === "ArrowDown") {
+        stopSoftDrop();
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("keyup", onKeyUp);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("keyup", onKeyUp);
+    };
   }, [actions]);
 }

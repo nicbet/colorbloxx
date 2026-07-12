@@ -4,11 +4,17 @@ import { useKeyboard } from "./hooks/useKeyboard";
 import "./App.css";
 
 function App() {
-  const { board, player, gameState, moveLeft, moveRight, hardDrop, startGame } =
-    useGameLoop();
+  const {
+    board, player, gameState,
+    moveLeft, moveRight, hardDrop,
+    startSoftDrop, stopSoftDrop,
+    startGame,
+  } = useGameLoop();
 
   useKeyboard(
-    gameState === "playing" ? { moveLeft, moveRight, hardDrop } : null,
+    gameState === "playing"
+      ? { moveLeft, moveRight, hardDrop, startSoftDrop, stopSoftDrop }
+      : null,
   );
 
   return (
@@ -36,7 +42,9 @@ function App() {
           <span className="sep">|</span>
           <span className="key">↑</span> Rotate
           <span className="sep">|</span>
-          <span className="key">↓</span> Drop
+          <span className="key">↓</span> Soft Drop
+          <span className="sep">|</span>
+          <span className="key">Space</span> Hard Drop
         </div>
         {gameState === "idle" && (
           <p className="hint">Press START to play</p>
