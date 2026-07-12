@@ -1,10 +1,12 @@
 import { useState } from "react";
 import GameCanvas from "./components/GameCanvas";
 import { createBoard } from "./game/board";
+import { spawnPlayer } from "./game/player";
 import "./App.css";
 
 function App() {
   const [board] = useState(createBoard);
+  const [player] = useState(spawnPlayer);
 
   return (
     <div className="game-container">
@@ -15,7 +17,7 @@ function App() {
           </span>
         ))}
       </h1>
-      <GameCanvas board={board} />
+      <GameCanvas board={board} player={player} />
       <div className="instructions">
         <div className="controls">
           <span className="key">←</span><span className="key">→</span> Move

@@ -1,9 +1,11 @@
 import { useRef, useEffect } from "react";
 import { BOARD_WIDTH, BOARD_HEIGHT, COLS, ROWS, CELL_SIZE } from "../game/constants";
 import type { Board } from "../game/board";
+import { type Player, getShape } from "../game/player";
 
 interface Props {
   board: Board;
+  player: Player | null;
 }
 
 function drawCell(ctx: CanvasRenderingContext2D, x: number, y: number, color: string) {
@@ -13,7 +15,6 @@ function drawCell(ctx: CanvasRenderingContext2D, x: number, y: number, color: st
   ctx.fillStyle = color;
   ctx.fillRect(x, y, s, s);
 
-  // lighter top & left edge
   ctx.fillStyle = "rgba(255,255,255,0.3)";
   ctx.beginPath();
   ctx.moveTo(x, y);
@@ -25,7 +26,6 @@ function drawCell(ctx: CanvasRenderingContext2D, x: number, y: number, color: st
   ctx.closePath();
   ctx.fill();
 
-  // darker bottom & right edge
   ctx.fillStyle = "rgba(0,0,0,0.3)";
   ctx.beginPath();
   ctx.moveTo(x + s, y);
@@ -59,7 +59,22 @@ function drawBoard(ctx: CanvasRenderingContext2D, board: Board) {
   }
 }
 
-export default function GameCanvas({ board }: Props) {
+function drawPlayer(ctx: CanvasRenderingContext2D, player: Player) {
+  const shape = getShape(player);
+  const { color } = player.tetromino;
+
+  for (let r = 0; r < shape.length; r++) {
+    for (let c = 0; c < shape[r].length; c++) {
+      if (shape[r][c]) {
+        const x = (player.pos.x + c) * CELL_SIZE;
+        const y = (player.pos.y + r) * CELL_SIZE;
+        drawCell(ctx, x, y, color);
+      }
+    }
+  }
+}
+
+export default function GameCanvas({ board, player }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -67,8 +82,12 @@ export default function GameCanvas({ board }: Props) {
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+
     drawBoard(ctx, board);
-  }, [board]);
+    if (player) {
+      drawPlayer(ctx, player);
+    }
+  }, [board, player]);
 
   return (
     <canvas
