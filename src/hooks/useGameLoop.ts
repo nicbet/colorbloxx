@@ -7,6 +7,7 @@ import { lockPiece } from "../game/lock";
 import { sfxMove, sfxRotate, sfxHardDrop, sfxLock, sfxLineClear, sfxGameOver } from "../game/audio";
 import { createLineClearEffect, type Effect } from "../game/effects";
 import { COLS } from "../game/constants";
+import type { ShakeHandle } from "../components/GameCanvas";
 
 const BASE_GRAVITY_MS = 800;
 const SPEED_REDUCTION_PER_LEVEL = 75;
@@ -37,6 +38,7 @@ export function useGameLoop() {
   const scoreRef = useRef(score);
   const lockDelayRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const effectsRef = useRef<Effect[]>([]);
+  const shakeRef = useRef<ShakeHandle | null>(null);
 
   playerRef.current = player;
   boardRef.current = board;
@@ -68,6 +70,8 @@ export function useGameLoop() {
       effectsRef.current.push(
         createLineClearEffect(clearedRows, linesCleared, performance.now(), rowColors),
       );
+      const shakeIntensity = [0, 2, 4, 6, 8][linesCleared] ?? 8;
+      shakeRef.current?.trigger(shakeIntensity);
     } else if (!isHardDrop) {
       sfxLock();
     }
@@ -248,7 +252,7 @@ export function useGameLoop() {
   }, [gameState, softDropping, level, isLanded, startLockDelay]);
 
   return {
-    board, player, gameState, score, level, lines, nextTetromino, effectsRef,
+    board, player, gameState, score, level, lines, nextTetromino, effectsRef, shakeRef,
     moveLeft, moveRight, hardDrop, rotate,
     startSoftDrop, stopSoftDrop,
     startGame, returnToIdle,

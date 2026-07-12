@@ -5,10 +5,15 @@ import { type Player, getShape } from "../game/player";
 import { isValidPosition } from "../game/collision";
 import { drawEffect, type Effect } from "../game/effects";
 
+export interface ShakeHandle {
+  trigger: (intensity: number) => void;
+}
+
 interface Props {
   board: Board;
   player: Player | null;
   effectsRef?: MutableRefObject<Effect[]>;
+  shakeRef?: MutableRefObject<ShakeHandle | null>;
 }
 
 function drawCell(ctx: CanvasRenderingContext2D, x: number, y: number, color: string) {
@@ -107,13 +112,25 @@ const showGhost = (() => {
   catch { return false; }
 })();
 
-export default function GameCanvas({ board, player, effectsRef }: Props) {
+export default function GameCanvas({ board, player, effectsRef, shakeRef }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const boardRef = useRef(board);
   const playerRef = useRef(player);
+  const shakeIntensity = useRef(0);
 
   boardRef.current = board;
   playerRef.current = player;
+
+  useEffect(() => {
+    if (shakeRef) {
+      shakeRef.current = {
+        trigger: (intensity: number) => {
+          shakeIntensity.current = Math.max(shakeIntensity.current, intensity);
+        },
+      };
+    }
+    return () => { if (shakeRef) shakeRef.current = null; };
+  }, [shakeRef]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -133,6 +150,17 @@ export default function GameCanvas({ board, player, effectsRef }: Props) {
       if (effectsRef) {
         const now = performance.now();
         effectsRef.current = effectsRef.current.filter((e) => drawEffect(ctx, e, now));
+      }
+
+      const s = shakeIntensity.current;
+      if (s > 0.5) {
+        const ox = (Math.random() - 0.5) * s * 2;
+        const oy = (Math.random() - 0.5) * s * 2;
+        canvas.style.transform = `translate(${ox}px, ${oy}px)`;
+        shakeIntensity.current *= 0.85;
+      } else {
+        canvas.style.transform = "";
+        shakeIntensity.current = 0;
       }
 
       rafId = requestAnimationFrame(render);
