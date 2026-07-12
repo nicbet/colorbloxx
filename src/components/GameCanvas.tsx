@@ -2,6 +2,7 @@ import { useRef, useEffect } from "react";
 import { BOARD_WIDTH, BOARD_HEIGHT, COLS, ROWS, CELL_SIZE } from "../game/constants";
 import type { Board } from "../game/board";
 import { type Player, getShape } from "../game/player";
+import { isValidPosition } from "../game/collision";
 
 interface Props {
   board: Board;
@@ -74,6 +75,36 @@ function drawPlayer(ctx: CanvasRenderingContext2D, player: Player) {
   }
 }
 
+function drawGhost(ctx: CanvasRenderingContext2D, board: Board, player: Player) {
+  const shape = getShape(player);
+  let ghostY = player.pos.y;
+
+  while (isValidPosition(board, shape, { x: player.pos.x, y: ghostY + 1 })) {
+    ghostY++;
+  }
+
+  if (ghostY === player.pos.y) return;
+
+  const { color } = player.tetromino;
+  ctx.globalAlpha = 0.25;
+  for (let r = 0; r < shape.length; r++) {
+    for (let c = 0; c < shape[r].length; c++) {
+      if (shape[r][c]) {
+        const x = (player.pos.x + c) * CELL_SIZE;
+        const y = (ghostY + r) * CELL_SIZE;
+        ctx.fillStyle = color;
+        ctx.fillRect(x, y, CELL_SIZE, CELL_SIZE);
+      }
+    }
+  }
+  ctx.globalAlpha = 1;
+}
+
+const showGhost = (() => {
+  try { return localStorage.getItem("showGhosts") === "true"; }
+  catch { return false; }
+})();
+
 export default function GameCanvas({ board, player }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const boardRef = useRef(board);
@@ -93,6 +124,7 @@ export default function GameCanvas({ board, player }: Props) {
     const render = () => {
       drawBoard(ctx, boardRef.current);
       if (playerRef.current) {
+        if (showGhost) drawGhost(ctx, boardRef.current, playerRef.current);
         drawPlayer(ctx, playerRef.current);
       }
       rafId = requestAnimationFrame(render);
