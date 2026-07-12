@@ -1,7 +1,11 @@
+import { useState } from "react";
 import GameCanvas from "./components/GameCanvas";
+import { createBoard } from "./game/board";
 import "./App.css";
 
 function App() {
+  const [board] = useState(createBoard);
+
   return (
     <div className="game-container">
       <h1 className="title">
@@ -11,7 +15,7 @@ function App() {
           </span>
         ))}
       </h1>
-      <GameCanvas />
+      <GameCanvas board={board} />
       <div className="instructions">
         <div className="controls">
           <span className="key">←</span><span className="key">→</span> Move
