@@ -10,7 +10,7 @@ interface Particle {
   maxLife: number;
 }
 
-export interface Effect {
+export interface LineClearEffect {
   type: "lineClear";
   startTime: number;
   duration: number;
@@ -19,6 +19,15 @@ export interface Effect {
   particles: Particle[];
   colors: string[][];
 }
+
+export interface LockFlashEffect {
+  type: "lockFlash";
+  startTime: number;
+  duration: number;
+  cells: { x: number; y: number }[];
+}
+
+export type Effect = LineClearEffect | LockFlashEffect;
 
 const FLASH_DURATION = 300;
 const PARTICLE_DURATION = 500;
@@ -62,6 +71,23 @@ export function createLineClearEffect(
   };
 }
 
+import { type Player, getShape } from "./player";
+
+const LOCK_FLASH_DURATION = 150;
+
+export function createLockFlashEffect(player: Player, timestamp: number): LockFlashEffect {
+  const shape = getShape(player);
+  const cells: { x: number; y: number }[] = [];
+  for (let r = 0; r < shape.length; r++) {
+    for (let c = 0; c < shape[r].length; c++) {
+      if (shape[r][c]) {
+        cells.push({ x: player.pos.x + c, y: player.pos.y + r });
+      }
+    }
+  }
+  return { type: "lockFlash", startTime: timestamp, duration: LOCK_FLASH_DURATION, cells };
+}
+
 export function drawEffect(
   ctx: CanvasRenderingContext2D,
   effect: Effect,
@@ -71,6 +97,17 @@ export function drawEffect(
   if (elapsed > effect.duration) return false;
 
   const progress = elapsed / effect.duration;
+
+  if (effect.type === "lockFlash") {
+    const alpha = (1 - progress) * 0.6;
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = "#fff";
+    for (const cell of effect.cells) {
+      ctx.fillRect(cell.x * CELL_SIZE, cell.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+    }
+    ctx.globalAlpha = 1;
+    return true;
+  }
 
   if (effect.count >= 4) {
     drawCOLORBLOXXFlash(ctx, effect, progress);
@@ -134,7 +171,7 @@ function drawFlash(
 
 function drawColorBrighten(
   ctx: CanvasRenderingContext2D,
-  effect: Effect,
+  effect: LineClearEffect,
   progress: number,
 ) {
   const alpha = progress < 0.3 ? progress / 0.3 : (1 - progress) / 0.7;
@@ -154,7 +191,7 @@ function drawColorBrighten(
 
 function drawCOLORBLOXXFlash(
   ctx: CanvasRenderingContext2D,
-  effect: Effect,
+  effect: LineClearEffect,
   progress: number,
 ) {
   const boardWidth = COLS * CELL_SIZE;

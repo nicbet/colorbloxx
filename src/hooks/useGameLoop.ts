@@ -5,7 +5,7 @@ import { randomTetromino, type Tetromino } from "../game/pieces";
 import { isValidPosition } from "../game/collision";
 import { lockPiece } from "../game/lock";
 import { sfxMove, sfxRotate, sfxHardDrop, sfxLock, sfxLineClear, sfxGameOver } from "../game/audio";
-import { createLineClearEffect, type Effect } from "../game/effects";
+import { createLineClearEffect, createLockFlashEffect, type Effect } from "../game/effects";
 import { COLS } from "../game/constants";
 import type { ShakeHandle } from "../components/GameCanvas";
 import type { FireworksHandle } from "../components/Fireworks";
@@ -58,6 +58,7 @@ export function useGameLoop() {
   }, []);
 
   const lockAndScore = useCallback((b: Board, p: Player, isHardDrop = false) => {
+    effectsRef.current.push(createLockFlashEffect(p, performance.now()));
     const locked = lockPiece(b, p);
     const { board: cleared, linesCleared, clearedRows } = clearLines(locked);
     setBoard(cleared);
