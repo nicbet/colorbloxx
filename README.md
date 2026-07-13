@@ -38,14 +38,22 @@ The game was built story by story, each one adding a layer:
 4. **Movement & collision** — keyboard input, wall detection, gravity
 5. **Start screen** — idle state with Start button (later replaced with attract mode)
 6. **Lock delay** — 500ms window to slide pieces after landing
-7. **Rotation** — clockwise rotation with wall kicks
-8. **Line clearing** — detect and remove full rows
-9. **Scoring & levels** — points per line clear, speed ramp every 1000 points
-10. **Game over** — top-out detection, initials prompt, play again
-11. **High scores** — localStorage persistence, retro arcade leaderboard
-12. **Next piece preview** — upcoming piece shown in side panel
-13. **Ghost piece** — drop shadow (feature-flagged)
-14. **Attract mode** — AI plays COLORBLOXX on the start screen
+7. **Soft drop & hard drop** — down arrow accelerates, space bar instant-locks
+8. **Rotation** — clockwise rotation with wall kicks
+9. **Line clearing** — detect and remove full rows
+10. **Scoring & levels** — points per line clear, speed ramp every 1000 points
+11. **Game over** — top-out detection, initials prompt
+12. **High scores** — localStorage persistence, retro arcade leaderboard (gold/silver/bronze)
+13. **Layout polish** — 3-column design, symmetric stat panels
+14. **Next piece preview** — upcoming piece shown in side panel
+15. **Ghost piece** — drop shadow (feature-flagged via localStorage)
+16. **Attract mode** — AI plays COLORBLOXX on the start screen with placement heuristic
+17. **Sound effects** — 8-bit chiptune sfx via Web Audio API (move, rotate, drop, lock, line clear celebrations, game over)
+18. **Background music** — attract theme + "In the Hall of the Mountain King" gameplay loop with tempo scaling
+19. **Line clear animations** — tiered effects: flash, color brighten, particles, lightning + "COLORBLOXX!" text
+20. **Board shake** — screen shake on line clears, scaled by lines cleared
+21. **Piece lock flash** — brief white flash when a piece locks
+22. **Full-page celebrations** — sparkles, streaks, and firework bursts across the viewport on line clears
 
 Along the way, bugs were filed, fixed, and tracked — layout shifts, double hard drops, animation delays — all visible in the issue history.
 
@@ -73,4 +81,6 @@ Set in the browser console, refresh to apply:
 
 ```js
 localStorage.setItem("showGhosts", "true")  // show drop shadow ghost piece
+localStorage.setItem("muteSound", "true")   // mute sound effects
+localStorage.setItem("muteMusic", "true")   // mute background music
 ```
