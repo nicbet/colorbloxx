@@ -1,6 +1,6 @@
 # COLORBLOXX
 
-![COLORBLOXX](docs/screenshot.png)
+![COLORBLOXX](docs/screenshot.webp)
 
 ## We started with this:
 
